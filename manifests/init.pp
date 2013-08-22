@@ -62,9 +62,6 @@ class virtualbox($version = "4.2.16", $build = "86992", $prefix = "/usr/local") 
         "$prefix/lib/vbox-preseed.rb":
             mode => 0644,
             source => "puppet:///modules/virtualbox/lib/vbox-preseed.rb";
-        "$prefix/lib/vbox-scancode.rb":
-            mode => 0644,
-            source => "puppet:///modules/virtualbox/lib/vbox-scancode.rb";
         ["$prefix/lib/vbox-tftpboot",
          "$prefix/lib/vbox-tftpboot/pxelinux.cfg",
          "$prefix/lib/vbox-tftpboot/ubuntu-installer",
