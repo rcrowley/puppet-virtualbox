@@ -1,0 +1,16 @@
+#!/bin/sh 
+
+set -e
+
+COMMAND="$0-$1"
+if [ -x "$COMMAND" ]
+then
+    shift
+    exec "$COMMAND" "$@"
+fi
+
+cat >&2 <<EOF
+Usage: $(basename $0) <command> [...]
+  <command> one of: up down save snapshot restore ssh
+EOF
+exit 1

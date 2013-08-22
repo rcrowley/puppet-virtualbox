@@ -1,0 +1,14 @@
+#!/bin/sh 
+
+set -e
+
+#/ Usage: vbox-down <name>
+#/   <name> VM name
+
+usage() {
+    grep "^#/" "$0" | cut -c"4-" >&2
+    exit "$1"
+}
+NAME="$1" shift || usage 1
+
+VBoxManage controlvm "$NAME" poweroff

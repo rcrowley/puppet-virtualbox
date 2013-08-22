@@ -1,0 +1,8 @@
+default ubuntu-installer/amd64/boot-screens/vesamenu.c32
+prompt 0
+timeout 1
+ontimeout install
+label install
+	menu label Install Ubuntu over the network
+	kernel ubuntu-installer/amd64/linux
+	append auto=true console-setup/ask_detect=false console-setup/layoutcode=us debian-installer/locale=en_US domain=localdomain hostname=localhost initrd=ubuntu-installer/amd64/initrd.gz keyboard-configuration/layoutcode=us localechooser/translation/warn-light=true localechooser/translation/warn-severe=true preseed/url=http://<%= ipaddress %>:48879/precise.seed priority=critical vga=788

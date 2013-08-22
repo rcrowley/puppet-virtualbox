@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+#/ Usage: ssh [...] [<username>@]<hostname>|<vmname> [...]
+
+: ${BASE:="$HOME/VirtualBox VMs"}
+
+usage() {
+    grep "^#/" "$0" | cut -c"4-" >&2
+    exit "$1"
+}
+ARGS= # Why is this necessary?
+while [ "$#" -gt 0 ]
+do
+    case "$1" in
+        -1|-2|-4|-6|-A|-a|-C|-f|-g|-K|-k|-M|-N|-n|-q|-s|-T|-t|-V|-v|-X|-x|-Y|-y)
+            ARGS="$ARGS \"$1\"" shift;;
+        -b|-c|-D|-e|-F|-I|-i|-L|-l|-m|-O|-o|-p|-R|-S|-W|-w)
+            ARGS="$ARGS \"$1\" \"$2\"" shift 2;;
+        -b*|-c*|-D*|-e*|-F*|-I*|-i*|-L*|-l*|-m*|-O*|-o*|-p*|-R*|-S*|-W*|-w*)
+            ARGS="$ARGS \"$1\"" shift;;
+        *@*) break;;
+        *)
+            if [ -d "$BASE/$1" ]
+            then ARGS="-A -o StrictHostKeyChecking=\"no\" -o UserKnownHostsFile=\"/dev/null\" -p\"2222\" $ARGS \"localhost\""
+            else ARGS="$ARGS \"$1\""
+            fi
+            shift
+            break;;
+    esac
+done
+
+for ARG in "$@"
+do ARGS="$ARGS \"$ARG\""
+done
+
+eval exec /usr/bin/ssh $ARGS
