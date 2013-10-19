@@ -2,13 +2,11 @@
 
 set -e
 
-#/ Usage: vbox up [--gui] [-p<port>] <name>
-#/   --gui                   start with a GUI
-#/   -p<port>, --port=<port> port number to use for SSH port forwarding (default: 2222)
-#/   <name>                  VM name
+#/ Usage: vbox up [--gui] <name>
+#/   --gui  start with a GUI
+#/   <name> VM name
 
 : ${BASE:="$HOME/VirtualBox VMs"}
-: ${PORT:="2222"}
 : ${TYPE:="headless"}
 
 usage() {
@@ -19,15 +17,32 @@ while [ "$#" -gt 0 ]
 do
     case "$1" in
         --gui) TYPE="gui" shift;;
-        -p|--port) PORT="$2" shift 2;;
-        -p*) PORT="$(echo "$1" | cut -c"3-")" shift;;
-        --port=*) PORT="$(echo "$1" | cut -c"8-")" shift;;
         -h|--help) usage 0;;
         *) break;;
     esac
 done
 NAME="$1"
 [ "$NAME" ] || usage 1
+
+# Decide what port to use.
+mkdir -p "$HOME/.vbox/portmap/names" "$HOME/.vbox/portmap/ports"
+if [ -f "$HOME/.vbox/portmap/names/$NAME" ]
+then
+    PORT="$(cat "$HOME/.vbox/portmap/names/$NAME")"
+else
+    OLDPORT="$(
+        find "$HOME/.vbox/portmap/ports" -type "f" |
+        xargs basename |
+        sort -nr |
+        head -n"1"
+    )"
+    if [ "$OLDPORT" ]
+    then PORT="$(($OLDPORT + 1))"
+    else PORT="2200"
+    fi
+    echo "$PORT" >"$HOME/.vbox/portmap/names/$NAME"
+    echo "$NAME" >"$HOME/.vbox/portmap/ports/$PORT"
+fi
 
 wait_for_ssh() {
     while true

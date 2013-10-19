@@ -10,7 +10,7 @@ usage() {
     grep "^#/" "$0" | cut -c"4-" >&2
     exit "$1"
 }
-ARGS= # Why is this necessary?
+ARGS=""
 while [ "$#" -gt 0 ]
 do
     case "$1" in
@@ -23,8 +23,13 @@ do
         *@*) break;;
         *)
             if [ -d "$BASE/$1" ]
-            then ARGS="-A -o StrictHostKeyChecking=\"no\" -o UserKnownHostsFile=\"/dev/null\" -p\"2222\" $ARGS \"localhost\""
-            else ARGS="$ARGS \"$1\""
+            then
+                if [ -f "$HOME/.vbox/portmap/names/$1" ]
+                then PORT="$(cat "$HOME/.vbox/portname/names/$1")"
+                else PORT="2222" # Port number assigned unilaterally by the original vbox-up.
+                ARGS="-A -o StrictHostKeyChecking=\"no\" -o UserKnownHostsFile=\"/dev/null\" -p\"$PORT\" $ARGS \"localhost\""
+            else
+                ARGS="$ARGS \"$1\""
             fi
             shift
             break;;
