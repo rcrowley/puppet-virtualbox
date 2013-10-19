@@ -22,22 +22,22 @@ First, you'll need a complete Puppet environment.
 
 2. In `puppet-airbook/puppet.conf`, configure Puppet:
 
-    [main]
-        manage_internal_file_permissions = false
-        manifest = manifests/site.pp
-        modulepath = modules
+        [main]
+            manage_internal_file_permissions = false
+            manifest = manifests/site.pp
+            modulepath = modules
 
 3. In `puppet-airbook/manifests/site.pp`, include the `virtualbox` class:
 
-    class { "virtualbox": }
+        class { "virtualbox": }
 
 4. In `puppet-airbook/modules`, clone `puppet-virtualbox` (either directly or as a submodule):
 
-    git clone git://github.com/rcrowley/puppet-virtualbox.git
+        git clone git://github.com/rcrowley/puppet-virtualbox.git
 
 5. Run Puppet:
 
-    puppet apply --config="puppet.conf" --verbose "manifests/site.pp"
+        puppet apply --config="puppet.conf" --verbose "manifests/site.pp"
 
 Once Puppet has run, you have the `vbox` and wrapped `ssh` commands available:
 
