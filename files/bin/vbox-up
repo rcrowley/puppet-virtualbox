@@ -2,33 +2,46 @@
 
 set -e
 
-#/ Usage: vbox up [--gui] -m<memory> <name>
-#/   --gui      start with a GUI
+#/ Usage: vbox up [-d<disk>] [-m<memory>] [--arch|--ubuntu] [--gui] <name>
+#/   -d<disk>   disk in gigabytes (default 40)
 #/   -m<memory> memory in megabytes (default 1024)
+#/   --arch     install Arch Linux - work in progress
+#/   --ubuntu   install Ubuntu 12.04 (default)
+#/   --gui      start with a GUI
 #/   <name>     VM name
 
 : ${BASE:="$HOME/VirtualBox VMs"}
+: ${DISK:=40}
+: ${DISTRO:="ubuntu"}
+: ${MEMORY:=1024}
 : ${TYPE:="headless"}
 
 usage() {
     grep "^#/" "$0" | cut -c"4-" >&2
     exit "$1"
 }
-MEMORY="1024"
 while [ "$#" -gt 0 ]
 do
     case "$1" in
-        --gui) TYPE="gui" shift;;
+        -d|--disk) DISK="$2" shift 2;;
+        -d*) DISK="$(echo "$1" | cut -c"3-")" shift;;
+        --disk=*) DISK="$(echo "$1" | cut -c"8-")" shift;;
         -m|--mem|--memory) MEMORY="$2" shift 2;;
         -m*) MEMORY="$(echo "$1" | cut -c"3-")" shift;;
         --mem=*) MEMORY="$(echo "$1" | cut -c"7-")" shift;;
         --memory=*) MEMORY="$(echo "$1" | cut -c"10-")" shift;;
+        --arch) DISTRO="arch" shift;;
+        --ubuntu) DISTRO="ubuntu" shift;;
+        --gui) TYPE="gui" shift;;
         -h|--help) usage 0;;
         *) break;;
     esac
 done
 NAME="$1"
 [ "$NAME" ] || usage 1
+
+# Create the "~/VirtualBox VMs" directory.
+mkdir -p "$BASE"
 
 # Decide what port to use.
 mkdir -p "$HOME/.vbox/portmap/names" "$HOME/.vbox/portmap/ports"
@@ -72,14 +85,12 @@ wait_for_ssh() {
 
 # Create the VM, unless it already exists, in which case, short-circuit
 # to start it and be done.
-VBoxManage createvm --name "$NAME" --basefolder "$BASE" --register || {
+if ! VBoxManage createvm --name "$NAME" --basefolder "$BASE" --register
+then
     VBoxManage startvm "$NAME" --type "$TYPE"
     wait_for_ssh
     exit 0
-}
-
-# Create the "~/VirtualBox VMs" directory.
-mkdir -p "$BASE"
+fi
 
 # Setup the VM for Ubuntu Linux.
 VBoxManage modifyvm "$NAME" \
@@ -93,6 +104,7 @@ VBoxManage modifyvm "$NAME" \
     --nestedpaging "on" \
     --accelerate3d "off" \
     --nic1 "nat" \
+    --natdnshostresolver1 "on" \
     --natpf1 "guestssh,tcp,,$PORT,,22" \
     --boot1 "disk" \
     --boot2 "net" \
@@ -106,25 +118,30 @@ VBoxManage modifyvm "$NAME" \
 # some stupid ideas about the defaults, which we don't follow.
 #
 # <http://pinboard.in/u:rcrowley/t:virtualbox/t:pxeboot/>
+case "$DISTRO" in
+    "arch") PXE="ipxe.pxe";;
+    "ubuntu") PXE="pxelinux.0";;
+esac
+TFTP="$(cd "$(dirname "$(dirname "$0")")/lib/vbox-tftpboot/$DISTRO" && pwd)"
 VBoxManage setextradata "$NAME" \
     "VBoxInternal/Devices/pcnet/0/LUN#0/Config/BootFile" \
     "pxelinux.0"
 VBoxManage setextradata "$NAME" \
     "VBoxInternal/Devices/pcnet/0/LUN#0/Config/TFTPPrefix" \
-    "$(cd "$(dirname "$(dirname "$0")")/lib/vbox-tftpboot" && pwd)"
+    "$TFTP"
 VBoxManage setextradata "$NAME" \
     "VBoxInternal/Devices/pcnet/0/LUN#0/AttachedDriver/Config/BootFile" \
     "pxelinux.0"
 VBoxManage setextradata "$NAME" \
     "VBoxInternal/Devices/pcnet/0/LUN#0/AttachedDriver/Config/TFTPPrefix" \
-    "$(cd "$(dirname "$(dirname "$0")")/lib/vbox-tftpboot" && pwd)"
+    "$TFTP"
 
 # Create and attach a 40GB virtual disk.
 VBoxManage storagectl "$NAME" --name "SATA" --add "sata"
 VBoxManage createhd \
     --filename "$BASE/$NAME/$NAME.vmdk" \
     --format "VMDK" \
-    --size "40960"
+    --size "$(($DISK * 1024))"
 VBoxManage storageattach "$NAME" \
     --storagectl "SATA" \
     --port 0 --device 0 \
@@ -132,9 +149,12 @@ VBoxManage storageattach "$NAME" \
     --medium "$BASE/$NAME/$NAME.vmdk"
 
 # Start a web server that will serve the preseed file.
-ruby "$(dirname "$(dirname "$0")")/lib/vbox-preseed.rb" \
-    "$(dirname "$(dirname "$0")")/lib/vbox-preseed" &
-trap "kill \"$!\"; sleep 1; kill \"$!\"; while ps aux | grep -q \"$!\"; do sleep 1; done" EXIT INT QUIT TERM
+if [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]
+then
+    ruby "$(dirname "$(dirname "$0")")/lib/vbox-preseed.rb" \
+        "$(dirname "$(dirname "$0")")/lib/vbox-preseed" &
+    #trap "kill \"$!\"; sleep 1; kill \"$!\"; while ps x | grep -q \"$!\"; do sleep 1; done" EXIT INT QUIT TERM
+fi
 
 # Start the VM.
 VBoxManage startvm "$NAME" --type "$TYPE"
