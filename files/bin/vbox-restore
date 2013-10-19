@@ -2,9 +2,9 @@
 
 set -e
 
-#/ Usage: vbox restore [-t<timestamp>] <name>
-#/   -t<timestamp>, --ts=<timestamp> timestamp of snapshot to restore
-#/   <name>                          VM name
+#/ Usage: vbox restore <name> [<snapshot>]
+#/   <name>     VM name
+#/   <snapshot> snapshot name (defaults to the most recent)
 
 usage() {
     grep "^#/" "$0" | cut -c"4-" >&2
@@ -22,17 +22,18 @@ do
 done
 NAME="$1"
 [ "$NAME" ] || usage 1
+SNAPSHOT="$2"
 
 # The VM must be powered off before restoring a snapshot.
 export PATH="$(dirname "$0"):$PATH"
 vbox-down "$NAME" || :
 
-if [ "$TS" ]
+if [ "$SNAPSHOT" ]
 then
-    VBoxManage snapshot "$NAME" restorecurrent
-else
     VBoxManage snapshot "$NAME" list |
-    fgrep "$TS" |
-    egrep -o "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+    grep -F "$SNAPSHOT" |
+    grep -E -o "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
     xargs VBoxManage snapshot "$NAME" restore
+else
+    VBoxManage snapshot "$NAME" restorecurrent
 fi

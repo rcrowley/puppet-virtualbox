@@ -15,4 +15,8 @@ NAME="$1"
 SNAPSHOT="$2"
 [ "$SNAPSHOT" ] || SNAPSHOT="$(date +"%Y-%m-%dT%H:%M:%SZ")"
 
+# The VM must be powered off before taking a snapshot.
+export PATH="$(dirname "$0"):$PATH"
+vbox-down "$NAME" || :
+
 VBoxManage snapshot "$NAME" take "$SNAPSHOT"
