@@ -2,9 +2,10 @@
 
 set -e
 
-#/ Usage: vbox up [--gui] <name>
-#/   --gui  start with a GUI
-#/   <name> VM name
+#/ Usage: vbox up [--gui] -m<memory> <name>
+#/   --gui      start with a GUI
+#/   -m<memory> memory in megabytes (default 1024)
+#/   <name>     VM name
 
 : ${BASE:="$HOME/VirtualBox VMs"}
 : ${TYPE:="headless"}
@@ -17,6 +18,10 @@ while [ "$#" -gt 0 ]
 do
     case "$1" in
         --gui) TYPE="gui" shift;;
+        -m|--mem|--memory) MEMORY="$2" shift 2;;
+        -m*) MEMORY="$(echo "$1" | cut -c"3-")" shift;;
+        --mem=*) MEMORY="$(echo "$1" | cut -c"7-")" shift;;
+        --memory=*) MEMORY="$(echo "$1" | cut -c"10-")" shift;;
         -h|--help) usage 0;;
         *) break;;
     esac
@@ -78,7 +83,7 @@ mkdir -p "$BASE"
 # Setup the VM for Ubuntu Linux.
 VBoxManage modifyvm "$NAME" \
     --ostype "Ubuntu_64" \
-    --memory 4096 \
+    --memory "$MEMORY" \
     --vram 12 \
     --acpi "on" --ioapic "on" \
     --cpus 1 \
