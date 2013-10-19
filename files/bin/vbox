@@ -10,7 +10,6 @@ then
 fi
 
 cat >&2 <<EOF
-Usage: $(basename $0) <command> [...]
-  <command> one of: up down save snapshot restore ssh
+Usage: $(basename $0) up|down|save|snapshot|restore [...]
 EOF
 exit 1

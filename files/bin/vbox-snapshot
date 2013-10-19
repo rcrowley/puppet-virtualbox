@@ -2,13 +2,17 @@
 
 set -e
 
-#/ Usage: vbox-snapshot <name>
-#/   <name> VM name
+#/ Usage: vbox snapshot <name> [<snapshot>]
+#/   <name>     VM name
+#/   <snapshot> snapshot name (defaults to an ISO 8601 timestamp)
 
 usage() {
     grep "^#/" "$0" | cut -c"4-" >&2
     exit "$1"
 }
-NAME="$1" shift || usage 1
+NAME="$1"
+[ "$NAME" ] || usage 1
+SNAPSHOT="$2"
+[ "$SNAPSHOT" ] || SNAPSHOT="$(date +"%Y-%m-%dT%H:%M:%SZ")"
 
-VBoxManage snapshot "$NAME" take "$(date +"%Y-%m-%dT%H:%M:%S")"
+VBoxManage snapshot "$NAME" take "$SNAPSHOT"

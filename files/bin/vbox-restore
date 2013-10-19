@@ -2,7 +2,7 @@
 
 set -e
 
-#/ Usage: vbox-restore [-t<timestamp>] <name>
+#/ Usage: vbox restore [-t<timestamp>] <name>
 #/   -t<timestamp>, --ts=<timestamp> timestamp of snapshot to restore
 #/   <name>                          VM name
 
@@ -20,10 +20,12 @@ do
         *) break;;
     esac
 done
-NAME="$1" shift || usage 1
+NAME="$1"
+[ "$NAME" ] || usage 1
 
 # The VM must be powered off before restoring a snapshot.
-$(dirname "$0")/vbox-down "$NAME" || :
+export PATH="$(dirname "$0"):$PATH"
+vbox-down "$NAME" || :
 
 if [ "$TS" ]
 then

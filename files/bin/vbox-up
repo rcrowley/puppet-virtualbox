@@ -2,7 +2,7 @@
 
 set -e
 
-#/ Usage: vbox-up [--gui] [-p<port>] <name>
+#/ Usage: vbox up [--gui] [-p<port>] <name>
 #/   --gui                   start with a GUI
 #/   -p<port>, --port=<port> port number to use for SSH port forwarding (default: 2222)
 #/   <name>                  VM name
@@ -26,7 +26,8 @@ do
         *) break;;
     esac
 done
-NAME="$1" shift || usage 1
+NAME="$1"
+[ "$NAME" ] || usage 1
 
 wait_for_ssh() {
     while true
