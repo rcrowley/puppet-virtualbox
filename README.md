@@ -31,9 +31,10 @@ First, you'll need a complete Puppet environment.
 
         class { "virtualbox": }
 
-4. In `puppet-airbook/modules`, clone `puppet-virtualbox` (either directly or as a submodule):
+4. In `puppet-airbook/modules`, clone `puppet-virtualbox` as `virtualbox` (either directly or as a submodule):
 
-        git clone git://github.com/rcrowley/puppet-virtualbox.git
+        mkdir modules
+        git clone git://github.com/rcrowley/puppet-virtualbox.git modules/virtualbox
 
 5. Run Puppet:
 
