@@ -27,6 +27,7 @@ do
                 if [ -f "$HOME/.vbox/portmap/names/$1" ]
                 then PORT="$(cat "$HOME/.vbox/portname/names/$1")"
                 else PORT="2222" # Port number assigned unilaterally by the original vbox-up.
+                fi
                 ARGS="-A -o StrictHostKeyChecking=\"no\" -o UserKnownHostsFile=\"/dev/null\" -p\"$PORT\" $ARGS \"localhost\""
             else
                 ARGS="$ARGS \"$1\""
