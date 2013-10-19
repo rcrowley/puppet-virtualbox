@@ -14,6 +14,7 @@ usage() {
     grep "^#/" "$0" | cut -c"4-" >&2
     exit "$1"
 }
+MEMORY="1024"
 while [ "$#" -gt 0 ]
 do
     case "$1" in
