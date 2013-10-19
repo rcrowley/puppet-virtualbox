@@ -84,7 +84,6 @@ VBoxManage modifyvm "$NAME" \
     --cpus 1 \
     --pae "off" \
     --hwvirtex "on" \
-    --hwvirtexexcl "off" \
     --nestedpaging "on" \
     --accelerate3d "off" \
     --nic1 "nat" \
