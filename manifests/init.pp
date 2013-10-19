@@ -1,4 +1,4 @@
-class virtualbox($version = "4.2.16", $build = "86992", $prefix = "/usr/local") {
+class virtualbox($version = "4.2.18", $build = "88780", $prefix = "/usr/local") {
 
     Exec {
         require => File["$prefix/lib/vbox-tftpboot/ubuntu-installer/amd64", "$prefix/lib/vbox-tftpboot/ubuntu-installer/amd64/boot-screens"],
