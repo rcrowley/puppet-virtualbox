@@ -93,8 +93,14 @@ then
 fi
 
 # Setup the VM for Ubuntu Linux.
+case "$DISTRO" in
+    "arch") OSTYPE="ArchLinux_64";;
+    "debian") OSTYPE="Debian_64";;
+    "ubuntu") OSTYPE="Ubuntu_64";;
+    *) echo "Linux_64";;
+esac
 VBoxManage modifyvm "$NAME" \
-    --ostype "Ubuntu_64" \
+    --ostype "$OSTYPE" \
     --memory "$MEMORY" \
     --vram 12 \
     --acpi "on" --ioapic "on" \
