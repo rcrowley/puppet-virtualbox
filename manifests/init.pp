@@ -1,10 +1,10 @@
 class virtualbox($version = "4.3.0", $build = "89960", $prefix = "/usr/local") {
 
     exec {
-        ["/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/archiso.img http://ftp.osuosl.org/pub/archlinux/iso/latest/arch/boot/x86_64/archiso.img",
+        ["/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/archiso.img http://arch.rcrowley.org/boot/x86_64/archiso.img",
+         "/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/menu.c32 https://releng.archlinux.org/pxeboot/boot/menu.c32",
          "/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/pxelinux.0 https://releng.archlinux.org/pxeboot/boot/pxelinux.0",
-         "/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/vmlinuz http://ftp.osuosl.org/pub/archlinux/iso/latest/arch/boot/x86_64/vmlinuz",
-         "/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/vesamenu.c32 https://releng.archlinux.org/pxeboot/boot/vesamenu.c32"]:
+         "/usr/bin/curl -o $prefix/lib/vbox-tftpboot/arch/vmlinuz http://arch.rcrowley.org/boot/x86_64/vmlinuz"]:
             require => File["$prefix/lib/vbox-tftpboot/arch"];
         "/usr/bin/curl -o $prefix/lib/vbox-tftpboot/ubuntu/ubuntu-installer/amd64/boot-screens/vesamenu.c32 http://archive.ubuntu.com/ubuntu/dists/precise-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64/boot-screens/vesamenu.c32":
             require => File["$prefix/lib/vbox-tftpboot/ubuntu/ubuntu-installer/amd64/boot-screens"];

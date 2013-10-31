@@ -1,9 +1,9 @@
-default vesamenu.c32
-prompt 0
-timeout 1
-ontimeout install
-label install
-	menu label Install Arch Linux over the network
-  linux vmlinuz
-  initrd archiso.img
-  append archiso_http_srv=http://ftp.osuosl.org/pub/archlinux/iso/latest/ archisobasedir=arch checksum=y ip=dhcp
+DEFAULT menu.c32
+PROMPT 0
+TIMEOUT 1
+ONTIMEOUT install
+LABEL install
+  MENU LABEL Install Arch Linux over the network
+  LINUX vmlinuz
+  INITRD archiso.img
+  APPEND archiso_http_srv=http://arch.rcrowley.org/ ip=dhcp
