@@ -6,7 +6,7 @@ Use this Puppet module on your Mac to install and upgrade VirtualBox, PXE boot V
 PXE
 ---
 
-The `vbox` commands Puppet installs in `/usr/local/bin` use VirtualBox's `tftp` server to PXE boot Ubuntu 12.04 from absolute scratch.
+The `vbox` commands Puppet installs in `/usr/local/bin` use VirtualBox's TFTP server to PXE boot Ubuntu 12.04 and now Arch Linux from absolute scratch.
 
 SSH
 ---
@@ -47,3 +47,15 @@ Once Puppet has run, you have the `vbox` and wrapped `ssh` commands available:
 <pre><code>ssh -l"root" "<em>name</em>"</code></pre>
 
 Further provisioning within the VM, say with Puppet, is an exercise left to the reader.
+
+Save your running VM to disk:
+
+<pre><code>vbox save "<em>name</em>"</code></pre>
+
+Or, less gracefully, power off your VM:
+
+<pre><code>vbox down "<em>name</em>"</code></pre>
+
+And start it back up later:
+
+<pre><code>vbox up "<em>name</em>"</code></pre>
