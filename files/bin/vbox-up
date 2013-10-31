@@ -51,8 +51,8 @@ then
 else
     OLDPORT="$(
         find "$HOME/.vbox/portmap/ports" -type "f" |
-        xargs basename |
-        sort -k"7"nr -t"/" |
+        xargs -n"1" basename |
+        sort -nr |
         head -n"1"
     )"
     if [ "$OLDPORT" ]
