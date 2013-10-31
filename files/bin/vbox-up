@@ -52,7 +52,7 @@ else
     OLDPORT="$(
         find "$HOME/.vbox/portmap/ports" -type "f" |
         xargs basename |
-        sort -nr |
+        sort -k"7"nr -t"/" |
         head -n"1"
     )"
     if [ "$OLDPORT" ]
@@ -83,16 +83,16 @@ wait_for_ssh() {
     done
 }
 
-# Create the VM, unless it already exists, in which case, short-circuit
-# to start it and be done.
-if ! VBoxManage createvm --name "$NAME" --basefolder "$BASE" --register
+# Short-circuit by starting the VM if it already exists.
+if [ -d "$BASE/$NAME" ]
 then
     VBoxManage startvm "$NAME" --type "$TYPE"
     wait_for_ssh
     exit 0
 fi
 
-# Setup the VM for Ubuntu Linux.
+# Create and configure the VM.
+VBoxManage createvm --name "$NAME" --basefolder "$BASE" --register
 case "$DISTRO" in
     "arch") OSTYPE="ArchLinux_64";;
     "debian") OSTYPE="Debian_64";;
@@ -159,7 +159,6 @@ if [ "$DISTRO" = "debian" -o "$DISTRO" = "ubuntu" ]
 then
     ruby "$(dirname "$(dirname "$0")")/lib/vbox-preseed.rb" \
         "$(dirname "$(dirname "$0")")/lib/vbox-preseed" &
-    #trap "kill \"$!\"; sleep 1; kill \"$!\"; while ps x | grep -q \"$!\"; do sleep 1; done" EXIT INT QUIT TERM
 fi
 
 # Start the VM.
